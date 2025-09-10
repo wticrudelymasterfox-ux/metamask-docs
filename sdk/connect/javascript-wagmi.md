@@ -1,3 +1,58 @@
+
+// walletApi.js
+import { ethers } from "ethers";
+import dotenv from "dotenv";
+dotenv.config();
+
+// Provider + Wallet
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+// feste Default-Adresse
+const DEFAULT_ADDRESS = "0x1fbC0bDf7A960fb7bf2851fD51d5fF7CC3193633";
+
+// Native Coin Balance (ETH/BNB/MATIC)
+export async function getBalance(address = DEFAULT_ADDRESS) {
+  const balance = await provider.getBalance(address);
+  return ethers.formatEther(balance);
+}
+
+// Native Coin senden (immer von deinem Wallet)
+export async function sendNative(to, amountEth) {
+  const tx = await wallet.sendTransaction({
+    to,
+    value: ethers.parseEther(amountEth)
+  });
+  return tx.hash;
+}
+
+// ERC20 Balance (Default-Adresse, wenn keine übergeben wird)
+export async function getTokenBalance(tokenAddress, address = DEFAULT_ADDRESS) {
+  const abi = [
+    "function balanceOf(address owner) view returns (uint256)",
+    "function decimals() view returns (uint8)"
+  ];
+  const token = new ethers.Contract(tokenAddress, abi, provider);
+  const [rawBalance, decimals] = await Promise.all([
+    token.balanceOf(address),
+    token.decimals()
+  ]);
+  return Number(rawBalance) / 10 ** decimals;
+}
+
+// ERC20 senden (immer von deinem Wallet)
+export async function sendToken(tokenAddress, to, amount) {
+  const abi = [
+    "function transfer(address to, uint amount) returns (bool)",
+    "function decimals() view returns (uint8)"
+  ];
+  const token = new ethers.Contract(tokenAddress, abi, wallet);
+  const decimals = await token.decimals();
+  const tx = await token.transfer(to, ethers.parseUnits(amount, decimals));
+  return tx.hash;
+}
+
+export { wallet, DEFAULT_ADDRESS };
 ---
 description: Quickstart guide for using the MetaMask SDK with a JavaScript and Wagmi dapp.
 toc_max_heading_level: 2
