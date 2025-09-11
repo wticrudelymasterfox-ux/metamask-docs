@@ -1,4 +1,5 @@
-# MetaMask developer documentation
+# MetaMask developer documentationhttps://dein-github-username.github.io/dezentraletradingpool/terms.html
+https://dein-github-username.github.io/dezentraletradingpool/privacy.html
 
 This is the MetaMask developer documentation repository.
 The documentation site is hosted at [`docs.metamask.io`](https://docs.metamask.io), and it's
